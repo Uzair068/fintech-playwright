@@ -14,6 +14,9 @@ export default defineConfig({
   use: {
     baseURL: process.env.BASE_URL || 'https://www.saucedemo.com',
     headless: false,        // ← You'll SEE the browser open (great for learning)
+    launchOptions: {
+      slowMo: 800,          // ← Slows down Playwright operations by 100ms (great for learning)
+    },
     screenshot: 'only-on-failure',
     video: 'retain-on-failure',
     trace: 'on-first-retry',
