@@ -13,9 +13,9 @@ export default defineConfig({
 
   use: {
     baseURL: process.env.BASE_URL || 'https://www.saucedemo.com',
-    headless: false,        // ← You'll SEE the browser open (great for learning)
+    headless: false,
     launchOptions: {
-      slowMo: 800,          // ← Slows down Playwright operations by 100ms (great for learning)
+      slowMo: 600,          // ← Slows down Playwright operations by 100ms (great for learning)
     },
     screenshot: 'only-on-failure',
     video: 'retain-on-failure',
@@ -23,9 +23,26 @@ export default defineConfig({
   },
 
   projects: [
+    // Step 1: Login and save session
+    {
+      name: 'setup',
+      testMatch: /.*\.setup\.ts/,
+    },
+
+    // Step 2: Run UI tests WITH saved session
     {
       name: 'chromium',
-      use: { ...devices['Desktop Chrome'] },
+      use: {
+        ...devices['Desktop Chrome'],
+        storageState: 'playwright/.auth/user.json',
+      },
+      dependencies: ['setup'], // always run setup first
+    },
+
+    // Step 3: API tests (no browser needed)
+    {
+      name: 'api',
+      testMatch: /.*api.*\.spec\.ts/,
     },
   ],
 });
