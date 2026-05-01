@@ -5,7 +5,7 @@ dotenv.config();
 export default defineConfig({
   testDir: './tests',
   fullyParallel: false,
-  retries: 0,
+  retries: process.env.CI ? 1 : 0, // retry once if running in CI
   workers: 1,
   timeout: 30000,
 
@@ -13,7 +13,7 @@ export default defineConfig({
 
   use: {
     baseURL: process.env.BASE_URL || 'https://www.saucedemo.com',
-    headless: false,
+    headless: process.env.CI ? true : false, // hide browser in CI
     launchOptions: {
       slowMo: 600,          // ← Slows down Playwright operations by 100ms (great for learning)
     },
@@ -23,23 +23,18 @@ export default defineConfig({
   },
 
   projects: [
-    // Step 1: Login and save session
     {
       name: 'setup',
       testMatch: /.*\.setup\.ts/,
     },
-
-    // Step 2: Run UI tests WITH saved session
     {
       name: 'chromium',
       use: {
         ...devices['Desktop Chrome'],
         storageState: 'playwright/.auth/user.json',
       },
-      dependencies: ['setup'], // always run setup first
+      dependencies: ['setup'],
     },
-
-    // Step 3: API tests (no browser needed)
     {
       name: 'api',
       testMatch: /.*api.*\.spec\.ts/,
